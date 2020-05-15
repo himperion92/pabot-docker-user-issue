@@ -1,0 +1,26 @@
+FROM python:3.6
+
+ENV PYTHONUNBUFFERED 1
+
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    curl \
+    jq \
+    libffi-dev \
+    mupdf \
+    python-dev
+
+RUN mkdir -p /test/output  /test/tests /test/docker
+
+COPY tests /test/tests
+COPY docker/docker-entrypoint.sh /test/docker/
+
+RUN pip install robotframework~=3.1 robotframework-pabot~=1.7
+
+RUN chmod +x /test/docker/docker-entrypoint.sh
+RUN chmod 777 /test/output/
+
+RUN useradd -m runner
+USER runner
+
+ENTRYPOINT ["/test/docker/docker-entrypoint.sh"]
